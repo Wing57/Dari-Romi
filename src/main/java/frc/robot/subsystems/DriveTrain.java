@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import frc.robot.Constants;
@@ -23,6 +26,8 @@ public class DriveTrain extends SubsystemBase {
 
   private final RomiGyro m_gyro;
 
+  private final DifferentialDriveOdometry m_Odometry;
+
   /** Creates a new Drivetrain. */
   public DriveTrain() {
     /*** MOTORS ***/
@@ -37,6 +42,9 @@ public class DriveTrain extends SubsystemBase {
     // Initialize gyroscope
     m_gyro = new RomiGyro();
 
+    // Create Odometry objecr
+    m_Odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d());
+
     /*** ENCODERS ***/
     m_leftEncoder = new Encoder(Constants.LEFT_A, Constants.LEFT_B);
     m_rightEncoder = new Encoder(Constants.RIGHT_A, Constants.RIGHT_B);
@@ -48,6 +56,35 @@ public class DriveTrain extends SubsystemBase {
 
   public void drive(double left, double right) {
     drive.tankDrive(left, right);
+  }
+
+  // ********************************************
+  // ************ Odometry Functions ************
+  // ********************************************
+
+  public void updateOdometry() {
+    m_Odometry.update(
+        m_gyro.getRotation2d(),
+        getLeftDistance(),
+        getRightDistance());
+  }
+
+  public Pose2d getPose() {
+    updateOdometry();
+    return m_Odometry.getPoseMeters();
+  }
+
+  // TODO: get the speed in m/s and not raw units
+  // find the distance per pulse.
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(
+        getLeftVelocity(), getRightVelocity());
+  }
+
+  public void resetOdometry(Pose2d pose2d) {
+    m_gyro.reset();
+    resetEncoders();
+    m_Odometry.resetPosition(pose2d, m_gyro.getRotation2d());
   }
 
   // *****************************************
@@ -94,10 +131,19 @@ public class DriveTrain extends SubsystemBase {
     return m_gyro.getAngleZ();
   }
 
-  
+  // Returns The robots heading in degrees, from -180 to 180
+  public double getHeading() {
+    return m_gyro.getRotation2d().getDegrees();
+  }
 
   public void resetGyro() {
     m_gyro.reset();
+  }
+
+  public void tankDriveVolts(double leftVolts, double rightVolts) {
+    m_leftMotor.setVoltage(leftVolts);
+    m_rightMotor.setVoltage(rightVolts);
+    drive.feed();
   }
 
   @Override
