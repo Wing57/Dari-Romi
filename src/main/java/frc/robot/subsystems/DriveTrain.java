@@ -7,12 +7,16 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.Constants;
 import frc.robot.utils.RomiGyro;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveTrain extends SubsystemBase {
 
@@ -28,6 +32,8 @@ public class DriveTrain extends SubsystemBase {
 
   private final DifferentialDriveOdometry m_Odometry;
 
+  private final Field2d field;
+
   /** Creates a new Drivetrain. */
   public DriveTrain() {
     /*** MOTORS ***/
@@ -36,14 +42,20 @@ public class DriveTrain extends SubsystemBase {
 
     m_rightMotor.setInverted(true);
 
-    // Create DifferentialDrive object
-    drive = new DifferentialDrive(m_leftMotor, m_rightMotor);
-
     // Initialize gyroscope
     m_gyro = new RomiGyro();
 
-    // Create Odometry objecr
+    // Initialize field2d
+    field = new Field2d();
+
+    // Create DifferentialDrive object
+    drive = new DifferentialDrive(m_leftMotor, m_rightMotor);
+
+    // Create Odometry object
     m_Odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d());
+
+    // Put field on the spot RUHEUHEUHEHE
+    SmartDashboard.putData("Field", field);
 
     /*** ENCODERS ***/
     m_leftEncoder = new Encoder(Constants.LEFT_A, Constants.LEFT_B);
@@ -54,8 +66,16 @@ public class DriveTrain extends SubsystemBase {
     resetEncoders();
   }
 
+  // *****************************************
+  // ************** Driving ******************
+  // *****************************************
+
   public void drive(double left, double right) {
     drive.tankDrive(left, right);
+  }
+
+  public void stopMotors() {
+    drive.stopMotor();
   }
 
   // ********************************************
@@ -63,10 +83,7 @@ public class DriveTrain extends SubsystemBase {
   // ********************************************
 
   public void updateOdometry() {
-    m_Odometry.update(
-        m_gyro.getRotation2d(),
-        getLeftDistance(),
-        getRightDistance());
+    m_Odometry.update(m_gyro.getRotation2d(), getLeftDistance(), getRightDistance());
   }
 
   public Pose2d getPose() {
@@ -74,11 +91,14 @@ public class DriveTrain extends SubsystemBase {
     return m_Odometry.getPoseMeters();
   }
 
+  public Field2d getField() {
+    return field;
+  }
+
   // TODO: get the speed in m/s and not raw units
   // find the distance per pulse.
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(
-        getLeftVelocity(), getRightVelocity());
+    return new DifferentialDriveWheelSpeeds(getLeftVelocity(), getRightVelocity());
   }
 
   public void resetOdometry(Pose2d pose2d) {
@@ -121,11 +141,11 @@ public class DriveTrain extends SubsystemBase {
   public double getVelocity() {
     return (getLeftVelocity() + getRightVelocity()) / 2.0;
   }
-  
+
   // *****************************************
   // ************* Robot Angle ***************
   // *****************************************
-  
+
   // Should be the same as navX.getangle()
   public double getGyroAngle() {
     return m_gyro.getAngleZ();
@@ -136,9 +156,17 @@ public class DriveTrain extends SubsystemBase {
     return m_gyro.getRotation2d().getDegrees();
   }
 
+  public double getTurnRate() {
+    return m_gyro.getRate();
+  }
+
   public void resetGyro() {
     m_gyro.reset();
   }
+
+  // *****************************************
+  // ************** Voltage ******************
+  // *****************************************
 
   public void tankDriveVolts(double leftVolts, double rightVolts) {
     m_leftMotor.setVoltage(leftVolts);
@@ -146,8 +174,18 @@ public class DriveTrain extends SubsystemBase {
     drive.feed();
   }
 
+  public void setMaxOutput(double MaxOutput) {
+    drive.setMaxOutput(MaxOutput);
+  }
+
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    updateOdometry();
+    field.setRobotPose(getPose());
+  }
+
+  public void InitSendable(SendableBuilder builder) {
+    super.initSendable(builder);
+    builder.addDoubleProperty("Angle", this::getGyroAngle, null);
   }
 }
