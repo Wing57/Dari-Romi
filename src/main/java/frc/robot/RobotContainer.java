@@ -7,24 +7,25 @@ package frc.robot;
 import com.rambots4571.rampage.joystick.Controller;
 import com.rambots4571.rampage.joystick.Gamepad;
 
-import frc.robot.commands.TankDriveCommand;
-import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.OnBoardIO;
-import frc.robot.subsystems.OnBoardIO.ChannelMode;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 
+import frc.robot.commands.TankDriveCommand;
+import frc.robot.subsystems.DriveTrain;
+import frc.robot.utils.OnBoardIO;
+import frc.robot.utils.OnBoardIO.ChannelMode;
+
 public class RobotContainer {
 
   // Create SmartDashboard chooser for autonomous routines
-  private final SendableChooser<Command> m_chooser = new SendableChooser<>();
+  private final SendableChooser<Command> autonChooser = new SendableChooser<>();
 
   // Joysticks
   public static final Controller<Gamepad.Button, Gamepad.Axis> driveController =
-  Gamepad.make(Constants.DRIVERCONTROLLER);
+      Gamepad.make(Constants.DRIVERCONTROLLER);
 
   // Subsystems
   private final DriveTrain driveTrain;
@@ -52,12 +53,13 @@ public class RobotContainer {
     onboardButtonA
         .whenActive(new PrintCommand("Button A Pressed"))
         .whenInactive(new PrintCommand("Button A Released"));
+  }
 
-    // Setup SmartDashboard options
-    SmartDashboard.putData(m_chooser);
+  public void configureAutons() {
+    SmartDashboard.putData("autonChooser", autonChooser);
   }
 
   public Command getAutonomousCommand() {
-    return m_chooser.getSelected();
+    return autonChooser.getSelected();
   }
 }
