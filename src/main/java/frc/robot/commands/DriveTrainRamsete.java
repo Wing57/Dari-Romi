@@ -9,7 +9,9 @@ import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
-import frc.robot.Constants;
+
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.utils.TrajectoryInjectory;
 
@@ -23,15 +25,15 @@ public class DriveTrainRamsete extends RamseteCommand {
     super(
         trajectory,
         driveTrain::getPose,
-        new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
+        new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
         new SimpleMotorFeedforward(
-            Constants.ksVolts,
-            Constants.kvVoltSecondsPerMeter,
-            Constants.kaVoltSecondsSquaredPerMeter),
-        Constants.kDriveKinematics,
+            DriveConstants.ksVolts,
+            DriveConstants.kvVoltSecondsPerMeter,
+            DriveConstants.kaVoltSecondsSquaredPerMeter),
+        DriveConstants.kDriveKinematics,
         driveTrain::getWheelSpeeds,
-        new PIDController(Constants.kPDriveVel, 0, 0),
-        new PIDController(Constants.kPDriveVel, 0, 0),
+        new PIDController(DriveConstants.kPDriveVel, 0, 0),
+        new PIDController(DriveConstants.kPDriveVel, 0, 0),
         driveTrain::tankDriveVolts,
         driveTrain);
 

@@ -10,14 +10,18 @@ import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 
 import frc.robot.Constants;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.DriveConstants;
 import java.io.IOException;
 import java.util.List;
 
 public final class TrajectoryInjectory {
 
-  private static final TrajectoryConfig MAX_TRAJECTORY_SPEED = new TrajectoryConfig(
-    Constants.kMaxVelocityMetersPerSecond,
-    Constants.kMaxAccelerationMetersPerSecondSquared).setKinematics(Constants.kDriveKinematics);
+  private static final TrajectoryConfig MAX_TRAJECTORY_SPEED =
+      new TrajectoryConfig(
+              AutoConstants.kMaxSpeedMetersPerSecond,
+              AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+          .setKinematics(DriveConstants.kDriveKinematics);
 
   private static final Trajectory NPC_TRAJECTORY =
       TrajectoryGenerator.generateTrajectory(

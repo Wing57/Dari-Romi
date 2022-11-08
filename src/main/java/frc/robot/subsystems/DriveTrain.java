@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot.Constants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.utils.RomiGyro;
 
 public class DriveTrain extends SubsystemBase {
@@ -37,8 +37,8 @@ public class DriveTrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
   public DriveTrain() {
     /*** MOTORS ***/
-    m_leftMotor = new Spark(Constants.LEFT_MOTOR);
-    m_rightMotor = new Spark(Constants.RIGHT_MOTOR);
+    m_leftMotor = new Spark(DriveConstants.LEFT_MOTOR);
+    m_rightMotor = new Spark(DriveConstants.RIGHT_MOTOR);
 
     m_rightMotor.setInverted(true);
 
@@ -58,11 +58,11 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putData("Field", field);
 
     /*** ENCODERS ***/
-    m_leftEncoder = new Encoder(Constants.LEFT_A, Constants.LEFT_B);
-    m_rightEncoder = new Encoder(Constants.RIGHT_A, Constants.RIGHT_B);
+    m_leftEncoder = new Encoder(DriveConstants.LEFT_A, DriveConstants.LEFT_B);
+    m_rightEncoder = new Encoder(DriveConstants.RIGHT_A, DriveConstants.RIGHT_B);
 
-    m_leftEncoder.setDistancePerPulse(Constants.DistancePerPulse);
-    m_rightEncoder.setDistancePerPulse(Constants.DistancePerPulse);
+    m_leftEncoder.setDistancePerPulse(DriveConstants.DistancePerPulse);
+    m_rightEncoder.setDistancePerPulse(DriveConstants.DistancePerPulse);
     resetEncoders();
   }
 
